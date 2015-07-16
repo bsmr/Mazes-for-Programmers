@@ -1,4 +1,4 @@
-defmodule EmfpTest do
+defmodule ElmfpTest do
   use ExUnit.Case
 
   test "the truth" do

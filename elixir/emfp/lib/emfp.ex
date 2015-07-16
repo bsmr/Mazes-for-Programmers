@@ -1,2 +1,0 @@
-defmodule Emfp do
-end
