@@ -9,6 +9,8 @@ defmodule Elmfp do
     children = [
       # Define workers and child supervisors to be supervised
       # worker(Elmfp.Worker, [arg1, arg2, arg3])
+			worker(Elmfp.Grid, []),
+			supervisor(Elmfp.CellSub, [])
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
