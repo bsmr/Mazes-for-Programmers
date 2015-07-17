@@ -11,7 +11,8 @@
 -behaviour(gen_server).
 
 %% API
--export([start_link/0]).
+-export([start_link/3,
+	 to_string/1]).
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
@@ -19,7 +20,7 @@
 
 -define(SERVER, ?MODULE).
 
--record(state, {}).
+-record(state, {mode, rows, columns, cells = []}).
 
 %%%===================================================================
 %%% API
@@ -32,9 +33,12 @@
 %% @spec start_link() -> {ok, Pid} | ignore | {error, Error}
 %% @end
 %%--------------------------------------------------------------------
-start_link() ->
-    gen_server:start_link({local, ?SERVER}, ?MODULE, [], []).
+start_link(Mode, Rows, Columns) ->
+    gen_server:start_link(?MODULE, [Mode, Rows, Columns], []).
 
+to_string(Maze) ->
+    gen_server:call(Maze, to_string).
+    
 %%%===================================================================
 %%% gen_server callbacks
 %%%===================================================================
@@ -50,8 +54,8 @@ start_link() ->
 %%                     {stop, Reason}
 %% @end
 %%--------------------------------------------------------------------
-init([]) ->
-    {ok, #state{}}.
+init([Mode, Rows, Columns]) ->
+    {ok, #state{mode = Mode, rows = Rows, columns = Columns}, 0}.
 
 %%--------------------------------------------------------------------
 %% @private
@@ -67,8 +71,8 @@ init([]) ->
 %%                                   {stop, Reason, State}
 %% @end
 %%--------------------------------------------------------------------
-handle_call(_Request, _From, State) ->
-    Reply = ok,
+handle_call(to_string, _From, State) ->
+    Reply = {ok, "soon I will render myself"},
     {reply, Reply, State}.
 
 %%--------------------------------------------------------------------
@@ -94,7 +98,14 @@ handle_cast(_Msg, State) ->
 %%                                   {stop, Reason, State}
 %% @end
 %%--------------------------------------------------------------------
-handle_info(_Info, State) ->
+handle_info(timeout, #state{ mode = Mode, rows = Rows, columns = Columns, cells = [] } = State) ->
+    io:format("*** ~p:handle_info(timeout, ~p) => create cells~n", [?MODULE, State]),
+    Cells = create_grid(Rows, Columns),
+    io:format("~n*** Cells: ~p~n~n", [Cells]),
+    {noreply, State#state{ cells = Cells }};
+
+handle_info(timeout, State) ->
+    io:format("*** ~p:handle_info(timeout, ~p)~n", [?MODULE, State]),
     {noreply, State}.
 
 %%--------------------------------------------------------------------
@@ -125,3 +136,24 @@ code_change(_OldVsn, State, _Extra) ->
 %%%===================================================================
 %%% Internal functions
 %%%===================================================================
+
+create_grid(Rows, Columns) ->
+    create_grid(Rows, Columns, []).
+
+create_grid(0, _Columns, Cells) ->
+    Cells;
+
+create_grid(Rows, Columns, Cells) ->
+    [create_grid_row(Rows, Columns, Cells) | create_grid(Rows - 1, Columns, Cells)].
+
+create_grid_row(_Row, 0, Cells) ->
+    Cells;
+
+create_grid_row(Row, Columns, Cells) ->
+    [create_grid_row_column(Row, Columns, Cells) | create_grid_row(Row, Columns - 1, Cells)].
+
+create_grid_row_column(Row, Column, Cells) ->
+    io:format("*** Cell: ~p x ~p~n", [Row, Column]),
+    {Row, Column, "C"}.
+
+%%% End Of File

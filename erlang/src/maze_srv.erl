@@ -12,6 +12,7 @@
 
 %% API
 -export([start_link/0]).
+-export([create/3, to_string/1]).
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
@@ -19,7 +20,7 @@
 
 -define(SERVER, ?MODULE).
 
--record(state, {}).
+-record(state, {mazes}).
 
 %%%===================================================================
 %%% API
@@ -34,6 +35,12 @@
 %%--------------------------------------------------------------------
 start_link() ->
     gen_server:start_link({local, ?SERVER}, ?MODULE, [], []).
+
+create(Mode, Rows, Columns) ->
+    gen_server:call(?MODULE, {create, Mode, Rows, Columns}).
+
+to_string(Maze) ->
+    gen_server:call(?MODULE, {to_string, Maze}).
 
 %%%===================================================================
 %%% gen_server callbacks
@@ -50,8 +57,8 @@ start_link() ->
 %%                     {stop, Reason}
 %% @end
 %%--------------------------------------------------------------------
-init([]) ->
-    {ok, #state{}}.
+init(_Args) ->
+    {ok, #state{ mazes = [] }}.
 
 %%--------------------------------------------------------------------
 %% @private
@@ -67,9 +74,21 @@ init([]) ->
 %%                                   {stop, Reason, State}
 %% @end
 %%--------------------------------------------------------------------
-handle_call(_Request, _From, State) ->
-    Reply = ok,
+handle_call({create, Mode, Rows, Columns}, _From, #state{mazes = Mazes}) ->
+    {ok, Maze} = maze_grid_sup:start_child(Mode, Rows, Columns),
+    Reply = {ok, Maze},
+    NewState = #state{mazes = [Maze | Mazes]},
+    {reply, Reply, NewState};
+
+handle_call({to_string, Maze}, _From, #state{mazes = Mazes} = State) ->
+    %%Reply = {ok, "to be done"},
+    Reply = case lists:member(Maze, Mazes) of
+		%%true -> {ok, "maze was found"};
+		true -> maze_grid_srv:to_string(Maze);
+		false -> {error, maze_not_found}
+	    end,
     {reply, Reply, State}.
+
 
 %%--------------------------------------------------------------------
 %% @private
