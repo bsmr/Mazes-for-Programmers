@@ -99,9 +99,9 @@ handle_cast(_Msg, State) ->
 %% @end
 %%--------------------------------------------------------------------
 handle_info(timeout, #state{ mode = Mode, rows = Rows, columns = Columns, cells = [] } = State) ->
-    io:format("*** ~p:handle_info(timeout, ~p) => create cells~n", [?MODULE, State]),
+    %%io:format("*** ~p:handle_info(timeout, ~p) => create cells~n", [?MODULE, State]),
     Cells = create_grid(Rows, Columns),
-    io:format("~n*** Cells: ~p~n~n", [Cells]),
+    %%io:format("~n*** Cells: ~p~n~n", [Cells]),
     {noreply, State#state{ cells = Cells }};
 
 handle_info(timeout, State) ->
@@ -143,6 +143,7 @@ create_grid(Rows, Columns) ->
 
 create_grid_cell(Row, Column) ->
     %%io:format("*** Cell: ~p x ~p~n", [Row, Column]),
-    {Row, Column, "C"}.
+    {ok, Cell} = maze_cell_sup:start_child(self(), Row, Column),
+    {Row, Column, Cell}.
 
 %%% End Of File

@@ -11,7 +11,7 @@
 -behaviour(gen_server).
 
 %% API
--export([start_link/0]).
+-export([start_link/3]).
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
@@ -19,7 +19,7 @@
 
 -define(SERVER, ?MODULE).
 
--record(state, {}).
+-record(state, {grid, row, column, links = []}).
 
 %%%===================================================================
 %%% API
@@ -32,8 +32,8 @@
 %% @spec start_link() -> {ok, Pid} | ignore | {error, Error}
 %% @end
 %%--------------------------------------------------------------------
-start_link() ->
-    gen_server:start_link({local, ?SERVER}, ?MODULE, [], []).
+start_link(Grid, Row, Column) ->
+    gen_server:start_link(?MODULE, [Grid, Row, Column], []).
 
 %%%===================================================================
 %%% gen_server callbacks
@@ -50,8 +50,8 @@ start_link() ->
 %%                     {stop, Reason}
 %% @end
 %%--------------------------------------------------------------------
-init([]) ->
-    {ok, #state{}}.
+init([Grid, Row, Column]) ->
+    {ok, #state{grid = Grid, row = Row, column = Column}}.
 
 %%--------------------------------------------------------------------
 %% @private

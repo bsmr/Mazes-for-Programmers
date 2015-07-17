@@ -11,7 +11,7 @@
 -behaviour(supervisor).
 
 %% API
--export([start_link/0]).
+-export([start_link/0, start_child/3]).
 
 %% Supervisor callbacks
 -export([init/1]).
@@ -32,6 +32,9 @@
 start_link() ->
     supervisor:start_link({local, ?SERVER}, ?MODULE, []).
 
+start_child(Grid, Row, Column) ->
+    supervisor:start_child(?MODULE, [Grid, Row, Column]).
+
 %%%===================================================================
 %%% Supervisor callbacks
 %%%===================================================================
@@ -51,16 +54,14 @@ start_link() ->
 %%--------------------------------------------------------------------
 init(_Args) ->
 
-    SupFlags = #{strategy => simple_one_for_one,
-		 intensity => 1,
-		 period => 5},
+    SupFlags = #{strategy => simple_one_for_one},
 
     AChild = #{id => maze_cell_srv,
 	       start => {maze_cell_srv, start_link, []},
 	       restart => permanent,
 	       shutdown => 5000,
-	       type => worker,
-	       modules => [maze_cell_srv]},
+	       type => worker
+	      },
 
     {ok, {SupFlags, [AChild]}}.
 

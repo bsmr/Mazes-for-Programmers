@@ -18,9 +18,12 @@ start() ->
     example().
 
 example() ->
-    {ok, Maze} = maze:create(sidewinder, 4, 4),
-    {ok, Data} = maze:to_string(Maze),
-    io:format("~s~n", [Data]),
+    {ok, Maze1} = maze:create(sidewinder, 4, 4),
+    {ok, Data1} = maze:to_string(Maze1),
+    io:format("~s~n", [Data1]),
+    %%{ok, Maze2} = maze:create(foobar, 10, 10),
+    %%{ok, Data2} = maze:to_string(Maze2),
+    %%io:format("~s~n", [Data2]),
     ok.
     
 create(Mode, Rows, Columns) ->

@@ -55,16 +55,14 @@ start_child(Mode, Rows, Columns) ->
 %%--------------------------------------------------------------------
 init(_Args) ->
 
-    SupFlags = #{strategy => simple_one_for_one,
-		 intensity => 1,
-		 period => 5},
+    SupFlags = #{strategy => simple_one_for_one},
 
     AChild = #{id => maze_grid_srv,
 	       start => {maze_grid_srv, start_link, []},
 	       restart => permanent,
 	       shutdown => 5000,
-	       type => worker,
-	       modules => [maze_grid_srv]},
+	       type => worker
+	      },
 
     {ok, {SupFlags, [AChild]}}.
 
