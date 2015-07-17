@@ -1,5 +1,5 @@
 #
-#
+# a basic makefile for the maze project
 #
 
 ERLC	= erlc
@@ -34,7 +34,6 @@ ebin/maze_cell_srv.beam: src/maze_cell_srv.erl
 
 run: compile
 	$(ERL) -pa ebin -s maze start
-
 
 clean:
 	find . -type f -name '*~' -execdir rm -f "{}" \;
