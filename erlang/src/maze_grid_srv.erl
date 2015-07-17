@@ -100,6 +100,7 @@ handle_cast(_Msg, State) ->
 %%--------------------------------------------------------------------
 handle_info(timeout, #state{ mode = Mode, rows = Rows, columns = Columns, cells = [] } = State) ->
     io:format("*** ~p:handle_info(timeout, ~p) => create cells~n", [?MODULE, State]),
+    %%Cells = lists:flatten(create_grid(Rows, Columns)),
     Cells = create_grid(Rows, Columns),
     io:format("~n*** Cells: ~p~n~n", [Cells]),
     {noreply, State#state{ cells = Cells }};
@@ -138,22 +139,11 @@ code_change(_OldVsn, State, _Extra) ->
 %%%===================================================================
 
 create_grid(Rows, Columns) ->
-    create_grid(Rows, Columns, []).
+    [create_grid_cell(Row, Column) || Row    <- lists:seq(0, Rows - 1),
+				      Column <- lists:seq(0, Columns - 1)].
 
-create_grid(0, _Columns, Cells) ->
-    Cells;
-
-create_grid(Rows, Columns, Cells) ->
-    [create_grid_row(Rows, Columns, Cells) | create_grid(Rows - 1, Columns, Cells)].
-
-create_grid_row(_Row, 0, Cells) ->
-    Cells;
-
-create_grid_row(Row, Columns, Cells) ->
-    [create_grid_row_column(Row, Columns, Cells) | create_grid_row(Row, Columns - 1, Cells)].
-
-create_grid_row_column(Row, Column, Cells) ->
-    io:format("*** Cell: ~p x ~p~n", [Row, Column]),
+create_grid_cell(Row, Column) ->
+    %%io:format("*** Cell: ~p x ~p~n", [Row, Column]),
     {Row, Column, "C"}.
 
 %%% End Of File
