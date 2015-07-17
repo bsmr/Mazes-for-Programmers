@@ -1,0 +1,24 @@
+%% -*- mode: Erlang; -*-
+
+{application, maze,
+ [{description, "the maze application"},
+  {vsn, "VSN"},
+  {modules, [maze,
+	     maze_app,
+	     maze_sup,
+	     maze_srv,
+	     maze_grid_sup,
+	     maze_grid_srv,
+	     maze_cell_sup,
+	     maze_cell_srv]},
+  {registered, [maze_sup,
+		maze_srv,
+		maze_grid_sup,
+		maze_cell_sup]},
+  {applications, [kernel,
+		  sasl,
+		  stdlib]},
+  {mod, {maze_app, []}}
+ ]}.
+
+%% End Of File
