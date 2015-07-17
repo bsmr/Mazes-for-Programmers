@@ -100,7 +100,6 @@ handle_cast(_Msg, State) ->
 %%--------------------------------------------------------------------
 handle_info(timeout, #state{ mode = Mode, rows = Rows, columns = Columns, cells = [] } = State) ->
     io:format("*** ~p:handle_info(timeout, ~p) => create cells~n", [?MODULE, State]),
-    %%Cells = lists:flatten(create_grid(Rows, Columns)),
     Cells = create_grid(Rows, Columns),
     io:format("~n*** Cells: ~p~n~n", [Cells]),
     {noreply, State#state{ cells = Cells }};
