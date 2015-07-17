@@ -1,8 +1,8 @@
-# Maces for Programmers - Elixir version
+# Mazes for Programmers - Erlang/OTP version
 
-This is my [Elixir][] version of [Maces for Programmers][].
+This is my [Erlang/OTP][] version of [Maces for Programmers][].
 
-[Elixir]: http://elixir-lang.org/
+[Erlang/OTP]: http://erlang.org/
 [Mazes for Programmers]: https://pragprog.com/book/jbmaze/mazes-for-programmers
 
 ## Abstract
