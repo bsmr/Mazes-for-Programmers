@@ -1,0 +1,7 @@
+# Erlang/OTP specific stuff
+ebin/*
+erl_crash.dump
+*.beam
+*.app
+
+# EOF
