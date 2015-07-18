@@ -51,39 +51,34 @@ start_link() ->
 %%--------------------------------------------------------------------
 init(_Args) ->
 
-    SupFlags = #{strategy => one_for_one,
-		 intensity => 1,
-		 period => 5},
+    SupFlags = #{strategy => one_for_one},
 
-    %% maze_srv
-    %% maze_grid_sup
-    %% maze_cell_sup
-    
     MazeServer = #{id => maze_srv,
 		   start => { maze_srv, start_link, []},
 		   restart => permanent,
 		   shutdown => 5000,
-		   type => worker,
-		   modules => [ maze_srv ]},
+		   type => worker},
     
     MazeGridSup = #{id => maze_grid_sup,
 		    start => { maze_grid_sup, start_link, []},
 		    restart => permanent,
 		    shutdown => 5000,
-		    type => supervisor,
-		    modules => [ maze_grid_sup ]},
+		    type => supervisor},
     
     MazeCellSup = #{id => maze_cell_sup,
 		    start => { maze_cell_sup, start_link, []},
 		    restart => permanent,
 		    shutdown => 5000,
-		    type => supervisor,
-		    modules => [ maze_cell_sup ]},
+		    type => supervisor},
     
-    Children = [ MazeServer, MazeGridSup, MazeCellSup ],
+    Children = [MazeServer, MazeGridSup, MazeCellSup],
 
     {ok, {SupFlags, Children}}.
 
 %%%===================================================================
 %%% Internal functions
 %%%===================================================================
+
+%%%-------------------------------------------------------------------
+%%% End Of File
+%%%-------------------------------------------------------------------

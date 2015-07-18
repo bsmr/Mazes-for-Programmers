@@ -7,20 +7,17 @@
 %%% Created : 17 Jul 2015 by Boris Mühmer <boris.muehmer@gmail.com>
 %%%-------------------------------------------------------------------
 -module(maze_grid_srv).
-
 -behaviour(gen_server).
+-include("maze.hrl").
 
 %% API
--export([start_link/3,
-	 to_string/1]).
+-export([start_link/4, to_string/1, at/3]).
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
 	 terminate/2, code_change/3]).
 
 -define(SERVER, ?MODULE).
-
--record(state, {mode, rows, columns, cells = []}).
 
 %%%===================================================================
 %%% API
@@ -33,11 +30,14 @@
 %% @spec start_link() -> {ok, Pid} | ignore | {error, Error}
 %% @end
 %%--------------------------------------------------------------------
-start_link(Mode, Rows, Columns) ->
-    gen_server:start_link(?MODULE, [Mode, Rows, Columns], []).
+start_link(Maze, Mode, Rows, Columns) ->
+    gen_server:start_link(?MODULE, [Maze, Mode, Rows, Columns], []).
 
-to_string(Maze) ->
-    gen_server:call(Maze, to_string).
+to_string(Grid) ->
+    gen_server:call(Grid, to_string).
+
+at(Grid, Row, Column) ->
+    gen_server:call(Grid, {at, Row, Column}).
     
 %%%===================================================================
 %%% gen_server callbacks
@@ -46,7 +46,7 @@ to_string(Maze) ->
 %%--------------------------------------------------------------------
 %% @private
 %% @doc
-%% Initializes the server
+%% Initializes the server.
 %%
 %% @spec init(Args) -> {ok, State} |
 %%                     {ok, State, Timeout} |
@@ -54,8 +54,9 @@ to_string(Maze) ->
 %%                     {stop, Reason}
 %% @end
 %%--------------------------------------------------------------------
-init([Mode, Rows, Columns]) ->
-    {ok, #state{mode = Mode, rows = Rows, columns = Columns}, 0}.
+init([Maze, Mode, Rows, Columns]) ->
+    {ok, #grid{maze = Maze, mode = Mode, cells = [],
+	       rows = Rows, columns = Columns}, 0}.
 
 %%--------------------------------------------------------------------
 %% @private
@@ -71,9 +72,23 @@ init([Mode, Rows, Columns]) ->
 %%                                   {stop, Reason, State}
 %% @end
 %%--------------------------------------------------------------------
+handle_call(_Request, _from, #grid{cells = []} = State) ->
+    Reply = {error, cells_are_not_created_yet},
+    {reply, Reply, State};
 handle_call(to_string, _From, State) ->
     Reply = {ok, "soon I will render myself"},
+    {reply, Reply, State};
+
+handle_call({at, Row, Column}, _From, #grid{rows = Rows, columns = Columns} = State)
+  when (Row < 0) or (Row >= Rows) or (Column < 0) or (Column >= Columns) ->
+    Reply = {error, out_of_bounds},
+    {reply, Reply, State};
+
+handle_call({at, Row, Column}, _From, #grid{cells = Cells} = State) ->
+    [Cell] = [GC || {R, C, GC} <- Cells, R =:= Row, C =:= Column],
+    Reply = {ok, Cell},
     {reply, Reply, State}.
+
 
 %%--------------------------------------------------------------------
 %% @private
@@ -85,8 +100,9 @@ handle_call(to_string, _From, State) ->
 %%                                  {stop, Reason, State}
 %% @end
 %%--------------------------------------------------------------------
-handle_cast(_Msg, State) ->
-    {noreply, State}.
+handle_cast(initialize, #grid{mode = Mode, rows = Rows, columns = Columns, cells = []} = State) ->
+    Cells = create_grid(Rows, Columns),
+    {noreply, State#grid{ cells = Cells }}.
 
 %%--------------------------------------------------------------------
 %% @private
@@ -98,14 +114,8 @@ handle_cast(_Msg, State) ->
 %%                                   {stop, Reason, State}
 %% @end
 %%--------------------------------------------------------------------
-handle_info(timeout, #state{ mode = Mode, rows = Rows, columns = Columns, cells = [] } = State) ->
-    %%io:format("*** ~p:handle_info(timeout, ~p) => create cells~n", [?MODULE, State]),
-    Cells = create_grid(Rows, Columns),
-    %%io:format("~n*** Cells: ~p~n~n", [Cells]),
-    {noreply, State#state{ cells = Cells }};
-
-handle_info(timeout, State) ->
-    io:format("*** ~p:handle_info(timeout, ~p)~n", [?MODULE, State]),
+handle_info(timeout, #grid{cells = []} = State) ->
+    gen_server:cast(self(), initialize),
     {noreply, State}.
 
 %%--------------------------------------------------------------------
@@ -142,8 +152,10 @@ create_grid(Rows, Columns) ->
 				      Column <- lists:seq(0, Columns - 1)].
 
 create_grid_cell(Row, Column) ->
-    %%io:format("*** Cell: ~p x ~p~n", [Row, Column]),
-    {ok, Cell} = maze_cell_sup:start_child(self(), Row, Column),
+    {ok, Cell} = maze_cell:create(self(), Row, Column),
+    %%#grid_cell{row = Row, column = Column, cell = Cell}.
     {Row, Column, Cell}.
 
+%%%-------------------------------------------------------------------
 %%% End Of File
+%%%-------------------------------------------------------------------

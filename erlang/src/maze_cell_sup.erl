@@ -7,7 +7,6 @@
 %%% Created : 17 Jul 2015 by Boris Mühmer <boris.muehmer@gmail.com>
 %%%-------------------------------------------------------------------
 -module(maze_cell_sup).
-
 -behaviour(supervisor).
 
 %% API
@@ -58,13 +57,14 @@ init(_Args) ->
 
     AChild = #{id => maze_cell_srv,
 	       start => {maze_cell_srv, start_link, []},
-	       restart => permanent,
-	       shutdown => 5000,
-	       type => worker
-	      },
+	       type => worker},
 
     {ok, {SupFlags, [AChild]}}.
 
 %%%===================================================================
 %%% Internal functions
 %%%===================================================================
+
+%%%-------------------------------------------------------------------
+%%% End Of File
+%%%-------------------------------------------------------------------

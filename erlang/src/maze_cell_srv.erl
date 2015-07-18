@@ -7,19 +7,17 @@
 %%% Created : 17 Jul 2015 by Boris Mühmer <boris.muehmer@gmail.com>
 %%%-------------------------------------------------------------------
 -module(maze_cell_srv).
-
 -behaviour(gen_server).
+-include("maze.hrl").
 
 %% API
--export([start_link/3]).
+-export([start_link/3, to_string/1]).
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
 	 terminate/2, code_change/3]).
 
 -define(SERVER, ?MODULE).
-
--record(state, {grid, row, column, links = []}).
 
 %%%===================================================================
 %%% API
@@ -34,6 +32,9 @@
 %%--------------------------------------------------------------------
 start_link(Grid, Row, Column) ->
     gen_server:start_link(?MODULE, [Grid, Row, Column], []).
+
+to_string(Cell) ->
+    gen_server:call(Cell, to_string).
 
 %%%===================================================================
 %%% gen_server callbacks
@@ -51,7 +52,7 @@ start_link(Grid, Row, Column) ->
 %% @end
 %%--------------------------------------------------------------------
 init([Grid, Row, Column]) ->
-    {ok, #state{grid = Grid, row = Row, column = Column}}.
+    {ok, #cell{grid = Grid, row = Row, column = Column, links = []}}.
 
 %%--------------------------------------------------------------------
 %% @private
@@ -67,8 +68,14 @@ init([Grid, Row, Column]) ->
 %%                                   {stop, Reason, State}
 %% @end
 %%--------------------------------------------------------------------
-handle_call(_Request, _From, State) ->
-    Reply = ok,
+handle_call(to_string, _From, #cell{row = Row, column = Column, links = []} = State) ->
+    String = maze:format("Cell(~p,~p) with no links", [Row, Column]),
+    Reply = {ok, String},
+    {reply, Reply, State};
+
+handle_call(to_string, _From, #cell{row = Row, column = Column, links = Links} = State) ->
+    String = maze:format("Cell(~p,~p) with links: ~p", [Row, Column, Links]),
+    Reply = {ok, String},
     {reply, Reply, State}.
 
 %%--------------------------------------------------------------------
@@ -125,3 +132,7 @@ code_change(_OldVsn, State, _Extra) ->
 %%%===================================================================
 %%% Internal functions
 %%%===================================================================
+
+%%%-------------------------------------------------------------------
+%%% End Of File
+%%%-------------------------------------------------------------------

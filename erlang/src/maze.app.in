@@ -1,4 +1,6 @@
-%% -*- mode: Erlang; -*-
+%%%-------------------------------------------------------------------
+%%% -*- mode: Erlang; -*-
+%%%-------------------------------------------------------------------
 
 {application, maze,
  [{description, "the maze application"},
@@ -7,8 +9,10 @@
 	     maze_app,
 	     maze_sup,
 	     maze_srv,
+	     maze_grid,
 	     maze_grid_sup,
 	     maze_grid_srv,
+	     maze_cell,
 	     maze_cell_sup,
 	     maze_cell_srv]},
   {registered, [maze_sup,
@@ -21,4 +25,6 @@
   {mod, {maze_app, []}}
  ]}.
 
-%% End Of File
+%%%-------------------------------------------------------------------
+%%% End Of File
+%%%-------------------------------------------------------------------

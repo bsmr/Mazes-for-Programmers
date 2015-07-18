@@ -7,12 +7,10 @@
 %%% Created : 17 Jul 2015 by Boris Mühmer <boris.muehmer@gmail.com>
 %%%-------------------------------------------------------------------
 -module(maze_grid_sup).
-
 -behaviour(supervisor).
 
 %% API
--export([start_link/0,
-	 start_child/3]).
+-export([start_link/0, start_child/4]).
 
 %% Supervisor callbacks
 -export([init/1]).
@@ -33,8 +31,8 @@
 start_link() ->
     supervisor:start_link({local, ?SERVER}, ?MODULE, []).
 
-start_child(Mode, Rows, Columns) ->
-    supervisor:start_child(?MODULE, [Mode, Rows, Columns]).
+start_child(Maze, Mode, Rows, Columns) ->
+    supervisor:start_child(?MODULE, [Maze, Mode, Rows, Columns]).
 
 %%%===================================================================
 %%% Supervisor callbacks
@@ -59,13 +57,14 @@ init(_Args) ->
 
     AChild = #{id => maze_grid_srv,
 	       start => {maze_grid_srv, start_link, []},
-	       restart => permanent,
-	       shutdown => 5000,
-	       type => worker
-	      },
+	       type => worker},
 
     {ok, {SupFlags, [AChild]}}.
 
 %%%===================================================================
 %%% Internal functions
 %%%===================================================================
+
+%%%-------------------------------------------------------------------
+%%% End Of File
+%%%-------------------------------------------------------------------
