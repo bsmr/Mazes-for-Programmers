@@ -7,7 +7,6 @@
 %%% Created : 17 Jul 2015 by Boris Mühmer <boris.muehmer@gmail.com>
 %%%-------------------------------------------------------------------
 -module(maze_sup).
-
 -behaviour(supervisor).
 
 %% API

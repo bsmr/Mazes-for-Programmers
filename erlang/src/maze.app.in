@@ -1,10 +1,10 @@
 %%%-------------------------------------------------------------------
-%%% -*- mode: Erlang; -*-
+%%% -*- mode: Erlang -*-
 %%%-------------------------------------------------------------------
 
 {application, maze,
  [{description, "the maze application"},
-  {vsn, "VSN"},
+  {vsn, "%%VSN%%"},
   {modules, [maze,
 	     maze_app,
 	     maze_sup,

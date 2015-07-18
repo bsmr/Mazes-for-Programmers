@@ -25,7 +25,7 @@ compile:	ebin/maze.app 		\
 
 # temporary hack, need better solution
 ebin/maze.app: src/maze.app.in
-	sed -e 's/VSN/0.0.1/g' <$< >$@
+	sed -e 's/%%VSN%%/0.0.1/g' <$< >$@
 
 ebin/maze_example.beam:		src/maze_example.erl	#include/maze.hrl
 ebin/maze.beam:			src/maze.erl		#include/maze.hrl
