@@ -12,7 +12,7 @@
 
 -record(grid, {maze, mode, rows, columns, cells}).
 
--record(cell, {grid, row, column, links}).
+-record(cell, {grid, row, column, links, north, south, east, west}).
 
 %%%-------------------------------------------------------------------
 %%% End Of File

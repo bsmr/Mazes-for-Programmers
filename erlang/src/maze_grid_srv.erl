@@ -75,8 +75,13 @@ init([Maze, Mode, Rows, Columns]) ->
 handle_call(_Request, _from, #grid{cells = []} = State) ->
     Reply = {error, cells_are_not_created_yet},
     {reply, Reply, State};
-handle_call(to_string, _From, State) ->
-    Reply = {ok, "soon I will render myself"},
+
+handle_call(to_string, _From, #grid{rows = Rows, columns = Columns, cells = Cells} = State) ->
+    CellLines = [{Row, Column, maze_cell:to_string(Cell)} || {Row, Column, Cell} <- Cells],
+    %%io:format("*** Lines: ~p~n", [CellLines]),
+    Text = format_cells(CellLines, Rows, Columns),
+    %%Reply = {ok, "soon I will render myself"},
+    Reply = {ok, Text},
     {reply, Reply, State};
 
 handle_call({at, Row, Column}, _From, #grid{rows = Rows, columns = Columns} = State)
@@ -155,6 +160,48 @@ create_grid_cell(Row, Column) ->
     {ok, Cell} = maze_cell:create(self(), Row, Column),
     %%#grid_cell{row = Row, column = Column, cell = Cell}.
     {Row, Column, Cell}.
+
+%% lines = ""
+%% for row = 0 to rows - 1
+%%   for lin = 0 to 4
+%%     for col = 0 to columns - 1
+%%       lines += cell(row, col, lin)
+%%     lines += newline
+%%   lines += newline
+%% lines
+%%Lines = [ 
+ 
+format_cells(Cells, Rows, Columns) ->
+    io:format("*** Lines: ~p~n", [Cells]),
+    format_row_col_line(Cells, 0, Rows, 0, Columns, 0, 5, "").
+
+format_row_col_line(_Cells, Rows, Rows, Col, Columns, Line, Lines, Text) ->
+    io:format("*** Row:~p, Rows:~p, Col:~p, Columns:~p, Line:~p, Lines:~p~n",
+	      [-1, Rows, Col, Columns, Line, Lines]),
+    io:format("*** 1(~p/~p/~p)~n", [-1, -1, -1]),
+    Text;
+
+format_row_col_line(Cells, Row, Rows, Col, Columns, Lines, Lines, Text) ->
+    io:format("*** Row:~p, Rows:~p, Col:~p, Columns:~p, Line:~p, Lines:~p~n",
+	      [Row, Rows, Col, Columns, -1, Lines]),
+    io:format("*** 2(~p/~p/~p)~n", [Row, Col, -1]),
+    format_row_col_line(Cells, Row + 1, Rows, 0, Columns, 0, Lines, Text);
+
+format_row_col_line(Cells, Row, Rows, Columns, Columns, Line, Lines, Text) ->
+    io:format("*** Row:~p, Rows:~p, Col:~p, Columns:~p, Line:~p, Lines:~p~n",
+	      [Row, Rows, -1, Columns, Line, Lines]),
+    io:format("*** 3(~p/~p/~p)~n", [Row, -1, Line]),
+    format_row_col_line(Cells, Row, Rows, 0, Columns, Line + 1, Lines, Text ++ "\n");
+
+format_row_col_line(Cells, Row, Rows, Col, Columns, Line, Lines, Text) ->
+    io:format("*** Row:~p, Rows:~p, Col:~p, Columns:~p, Line:~p, Lines:~p~n",
+	      [Row, Rows, Col, Columns, Line, Lines]),
+    [Cell] = [X || {R, C, X} <- Cells, R == Row, C == Col],
+    %%io:format("*** Cell: ~p~n", [Cell]),
+    {ok, CLines} = Cell,
+    [String] = [T || {L, T} <- CLines, L == Line],
+    io:format("*** S(~p/~p/~p): ~p~n", [Row, Col, Line, String]),
+    format_row_col_line(Cells, Row, Rows, Col + 1, Columns, Line, Lines, Text ++ String).
 
 %%%-------------------------------------------------------------------
 %%% End Of File

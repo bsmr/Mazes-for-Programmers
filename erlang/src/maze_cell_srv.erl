@@ -69,13 +69,29 @@ init([Grid, Row, Column]) ->
 %% @end
 %%--------------------------------------------------------------------
 handle_call(to_string, _From, #cell{row = Row, column = Column, links = []} = State) ->
-    String = maze:format("Cell(~p,~p) with no links", [Row, Column]),
-    Reply = {ok, String},
+    %%String = maze:format("Cell(~p,~p) with no links", [Row, Column]),
+    %%String = "+---+",
+    Lines = [{0, "+---+"},
+	     {1, "|   |"},
+	     {2, "|   |"},
+	     {3, "|   |"},
+	     {4, "+---+"}],
+    Reply = {ok, Lines},
     {reply, Reply, State};
 
-handle_call(to_string, _From, #cell{row = Row, column = Column, links = Links} = State) ->
+handle_call(to_string, _From,
+	    #cell{row = Row, column = Column, links = Links,
+		 north = North, south = South, east = East, west = West} = State) ->
     String = maze:format("Cell(~p,~p) with links: ~p", [Row, Column, Links]),
-    Reply = {ok, String},
+    
+    Line1 = case North of
+		undefined -> "+---+";
+		_         -> "+   +"
+	    end,
+		    
+    %%io:format("*** LINE: ~s~n", [Line1]),
+    
+    Reply = {ok, Line1},
     {reply, Reply, State}.
 
 %%--------------------------------------------------------------------
