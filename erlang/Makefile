@@ -14,6 +14,7 @@ compile:	ebin/maze.app 			\
 		ebin/maze_example.beam		\
 		ebin/maze_util.beam		\
 		ebin/maze_binary_tree.beam	\
+		ebin/maze_sidewinder.beam	\
 		ebin/maze.beam			\
 		ebin/maze_app.beam		\
 		ebin/maze_sup.beam		\
@@ -42,6 +43,7 @@ ebin/maze_cell_sup.beam:		src/maze_cell_sup.erl		#include/maze.hrl
 ebin/maze_cell_srv.beam:		src/maze_cell_srv.erl		include/maze.hrl
 ebin/maze_util.beam:			src/maze_util.erl		#include/maze.hrl
 ebin/maze_binary_tree.beam:		src/maze_binary_tree.erl	#include/maze.hrl
+ebin/maze_sidewinder.beam:		src/maze_sidewinder.erl		#include/maze.hrl
 
 # normal
 run: compile

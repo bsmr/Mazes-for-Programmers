@@ -8,7 +8,7 @@
 %%%-------------------------------------------------------------------
 -module(maze_grid).
 
--export([create/3, ranks/1, cells/1, at/3]).
+-export([create/3, ranks/1, cells/1, at/3, rows/1]).
 
 create(Maze, Rows, Columns) ->
     maze_grid_sup:start_child(Maze, Rows, Columns).
@@ -21,6 +21,9 @@ cells(Grid) ->
 
 at(Grid, Row, Column) ->
     maze_grid_srv:at(Grid, Row, Column).
+
+rows(Grid) ->
+    maze_grid_srv:rows(Grid).
 
 %%%-------------------------------------------------------------------
 %%% End Of File

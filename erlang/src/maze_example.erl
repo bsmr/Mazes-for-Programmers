@@ -34,7 +34,8 @@ example() ->
     %% prepare cells for maze algorithm
     ok = maze_util:grid_configure(Grid),
     %% execute maze algorithm
-    ok = maze_binary_tree:prepare(Grid),
+    %%ok = maze_binary_tree:prepare(Grid),
+    ok = maze_sidewinder:prepare(Grid),
     %% show maze
     ok = maze_util:grid_format(Grid),
     ok.
