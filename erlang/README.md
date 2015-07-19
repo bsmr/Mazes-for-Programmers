@@ -1,6 +1,6 @@
 # Mazes for Programmers - Erlang/OTP version
 
-This is my [Erlang/OTP][] version of [Maces for Programmers][].
+This is my [Erlang/OTP][] version of [Mazes for Programmers][].
 
 [Erlang/OTP]: http://erlang.org/
 [Mazes for Programmers]: https://pragprog.com/book/jbmaze/mazes-for-programmers
@@ -8,7 +8,7 @@ This is my [Erlang/OTP][] version of [Maces for Programmers][].
 ## Abstract
 
 This project is based on the ideas given in the book
-[Maces for Programmer][], but it does not use lists or arrays to store
+[Mazes for Programmer][], but it does not use lists or arrays to store
 the grid and cells, instead it uses process to represent the data.
 
 The application consists of a main supervisor. The main supervisor
