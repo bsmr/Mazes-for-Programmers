@@ -43,15 +43,23 @@ ebin/maze_cell_srv.beam:		src/maze_cell_srv.erl		include/maze.hrl
 ebin/maze_util.beam:			src/maze_util.erl		#include/maze.hrl
 ebin/maze_binary_tree.beam:		src/maze_binary_tree.erl	#include/maze.hrl
 
+# normal
 run: compile
 	$(ERL) -pa ebin -s maze_example start
 
+# just a convenience target
+run-10-20: compile
+	$(ERL) -pa ebin -s maze_example start -gridranks 10 20
+
+# use short name
 run-sname: compile
 	$(ERL) -sname mfp -pa ebin -s maze_example start
 
+# use long name
 run-name: compile
 	$(ERL) -name mfp -pa ebin -s maze_example start
 
+# cleanup section
 clean:
 	find . -type f -name '*~' -execdir rm -f "{}" \;
 	find . -type f -name 'erl_crash.dump' -execdir rm -f "{}" \;
