@@ -20,7 +20,7 @@
 		maze_grid_sup,
 		maze_cell_sup]},
   {applications, [kernel,
-		  sasl,
+		  %%sasl,
 		  stdlib]},
   {mod, {maze_app, []}}
  ]}.

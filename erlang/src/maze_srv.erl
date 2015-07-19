@@ -11,7 +11,7 @@
 -include("maze.hrl").
 
 %% API
--export([start_link/0, create/3]).
+-export([start_link/0, create/2]).
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
@@ -33,8 +33,8 @@
 start_link() ->
     gen_server:start_link({local, ?SERVER}, ?MODULE, [], []).
 
-create(Mode, Rows, Columns) ->
-    gen_server:call(?MODULE, {create, Mode, Rows, Columns}).
+create(Rows, Columns) ->
+    gen_server:call(?MODULE, {create, Rows, Columns}).
 
 %%%===================================================================
 %%% gen_server callbacks
@@ -68,11 +68,10 @@ init(_Args) ->
 %%                                   {stop, Reason, State}
 %% @end
 %%--------------------------------------------------------------------
-handle_call({create, Mode, Rows, Columns}, _From, #maze{grids = Grids} = State) ->
-    {ok, Grid} = maze_grid:create(self(), Mode, Rows, Columns),
+handle_call({create, Rows, Columns}, _From, #maze{grids = Grids} = State) ->
+    {ok, Grid} = maze_grid:create(self(), Rows, Columns),
     Reply = {ok, Grid},
-    NewState = State#maze{grids = [Grid | Grids]},
-    {reply, Reply, NewState}.
+    {reply, Reply, State#maze{grids = [Grid | Grids]}}.
 
 %%--------------------------------------------------------------------
 %% @private

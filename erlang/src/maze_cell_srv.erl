@@ -17,11 +17,11 @@
 	 south/1, south/2,
 	 east/1, east/2,
 	 west/1, west/2,
+	 links/1,
 	 link/3,
 	 unlink/3,
 	 is_linked/2,
-	 neighbours/1,
-	 to_string/1]).
+	 neighbours/1]).
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
@@ -70,6 +70,9 @@ west(Cell) ->
 west(Cell, West) ->
     gen_server:call(Cell, {set_west, West}).
 
+links(Cell) ->
+    gen_server:call(Cell, links).
+
 link(Cell, To, Bidi) ->
     gen_server:call(Cell, {link, To, Bidi}).
 
@@ -81,9 +84,6 @@ is_linked(Cell, To) ->
 
 neighbours(Cell) ->
     gen_server:call(Cell, neighbours).
-
-to_string(Cell) ->
-    gen_server:call(Cell, to_string).
 
 %%%===================================================================
 %%% gen_server callbacks
@@ -163,15 +163,23 @@ handle_call({set_east, NewCell}, _From, #cell{east = OldCell} = State) ->
 handle_call({set_west, NewCell}, _From, #cell{west = OldCell} = State) ->
     Reply = {ok, OldCell},
     {reply, Reply, State#cell{west = NewCell}};
+
+handle_call(links, _From, #cell{links = Links} = State) ->
+    %%Pids = [P || P <- Links],
+    %%io:format("*** ~p:handle_call(links,...,Links:~p) => Cells:~p~n", [?MODULE, Links, Pids]),
+    Reply = {ok, Links},
+    {reply, Reply, State};
     
 handle_call({link, To, true}, _From, #cell{links = OldLinks} = State) ->
     NewLinks = [To | OldLinks],
+    %%io:format("*** [~p] ~p:handle_call({link, To:~p, true}):~n    old:~p => new:~p~n", [self(), ?MODULE, To, OldLinks, NewLinks]),
     maze_cell:link(To, self(), false),
     Reply = ok,
     {reply, Reply, State#cell{links = NewLinks}};
     
 handle_call({link, To, false}, _From, #cell{links = OldLinks} = State) ->
     NewLinks = [To | OldLinks],
+    %%io:format("*** [~p] ~p:handle_call({link, To:~p, false}):~n    old:~p => new:~p~n", [self(), ?MODULE, To, OldLinks, NewLinks]),
     Reply = ok,
     {reply, Reply, State#cell{links = NewLinks}};
     
@@ -198,46 +206,6 @@ handle_call(neighbours, _From,
 	    #cell{north = North, south = South, east = East, west = West} = State) ->
     Neighbours = [N || N <- [North, South, East, West], N =/= undefined],
     Reply = {ok, Neighbours},
-    {reply, Reply, State};
-    
-%% handle_call(to_string, _From, #cell{links = []} = State) ->
-%%     Lines = [{0, "+---+"},
-%% 	     {1, "|XXX|"},
-%% 	     {2, "|XXX|"},
-%% 	     {3, "|XXX|"},
-%% 	     {4, "+---+"}],
-%%     Reply = {ok, Lines},
-%%     {reply, Reply, State};
-
-handle_call(to_string, _From,
-	    #cell{north = North, south = South, east = East, west = West, links = Links} = State) ->
-    
-    %%io:format("*** ~p - N/S/W/E: ~p/~p/~p/~p~n", [self(), North, South, West, East]),
-
-    Line0 = case lists:member(North, Links) of
-		false -> "+---+";
-		true  -> "+   +"
-	    end,
-    
-    LineX = case {lists:member(West, Links), lists:member(East, Links)} of
-		{false, false} -> "|   |";
-		{false, true } -> "|    ";
-		{true,  false} -> "    |";
-		{true,  true } -> "     "
-	    end,
-    
-    Line4 = case lists:member(South, Links) of
-		false -> "+---+";
-		true  -> "+   +"
-	    end,
-    
-    Lines = [{0, Line0},
-	     {1, LineX},
-	     {2, LineX},
-	     {3, LineX},
-	     {4, Line4}],
-    
-    Reply = {ok, Lines},
     {reply, Reply, State}.
 
 %%--------------------------------------------------------------------

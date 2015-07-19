@@ -11,7 +11,7 @@
 -include("maze.hrl").
 
 %% API
--export([start_link/4, cells/1, configure/1, to_string/1, at/3]).
+-export([start_link/3, ranks/1, cells/1, at/3]).
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
@@ -30,17 +30,14 @@
 %% @spec start_link() -> {ok, Pid} | ignore | {error, Error}
 %% @end
 %%--------------------------------------------------------------------
-start_link(Maze, Mode, Rows, Columns) ->
-    gen_server:start_link(?MODULE, [Maze, Mode, Rows, Columns], []).
+start_link(Maze, Rows, Columns) ->
+    gen_server:start_link(?MODULE, [Maze, Rows, Columns], []).
+
+ranks(Grid) ->
+    gen_server:call(Grid, ranks).
 
 cells(Grid) ->
     gen_server:call(Grid, get_cells).
-
-configure(Grid) ->
-    gen_server:call(Grid, configure).
-
-to_string(Grid) ->
-    gen_server:call(Grid, to_string).
 
 at(Grid, Row, Column) ->
     gen_server:call(Grid, {at, Row, Column}).
@@ -60,9 +57,11 @@ at(Grid, Row, Column) ->
 %%                     {stop, Reason}
 %% @end
 %%--------------------------------------------------------------------
-init([Maze, Mode, Rows, Columns]) ->
-    Cells = create_grid(Rows, Columns),
-    {ok, #grid{maze = Maze, mode = Mode, cells = Cells,
+init([Maze, Rows, Columns]) ->
+    Cells = [{Row, Column, create_grid_cell(Row, Column)} ||
+		Row    <- lists:seq(0, Rows - 1),
+		Column <- lists:seq(0, Columns - 1)],
+    {ok, #grid{maze = Maze, cells = Cells,
 	       rows = Rows, columns = Columns}}.
 
 %%--------------------------------------------------------------------
@@ -83,20 +82,13 @@ handle_call(_Request, _From, #grid{cells = []} = State) ->
     Reply = {error, cells_are_not_created_yet},
     {reply, Reply, State};
 
+handle_call(ranks, _From, #grid{rows = Rows, columns = Columns} = State) ->
+    Reply = {ok, Rows, Columns},
+    {reply, Reply, State};
+
 handle_call(get_cells, _From, #grid{cells = Cells} = State) ->
-    Reply = {ok, Cells},
-    {reply, Reply, State};
-
-handle_call(configure, _From, #grid{cells = Cells} = State) ->
-    %%io:format("*** configure cells: ~p~n", [Cells]),
-    [configure_cell(Cells, Cell) || {_, _, Cell} <- Cells],
-    Reply = ok,
-    {reply, Reply, State};
-
-handle_call(to_string, _From, #grid{rows = Rows, columns = Columns, cells = Cells} = State) ->
-    CellLines = [{Row, Column, maze_cell:to_string(Cell)} || {Row, Column, Cell} <- Cells],
-    Text = format_cells(CellLines, Rows, Columns),
-    Reply = {ok, Text},
+    Pids = [P || {_, _, P} <- Cells],
+    Reply = {ok, Pids},
     {reply, Reply, State};
 
 handle_call({at, Row, Column}, _From, #grid{rows = Rows, columns = Columns} = State)
@@ -105,10 +97,9 @@ handle_call({at, Row, Column}, _From, #grid{rows = Rows, columns = Columns} = St
     {reply, Reply, State};
 
 handle_call({at, Row, Column}, _From, #grid{cells = Cells} = State) ->
-    [Cell] = [GC || {R, C, GC} <- Cells, R =:= Row, C =:= Column],
-    Reply = {ok, Cell},
+    [Pid] = [P || {R, C, P} <- Cells, R =:= Row, C =:= Column],
+    Reply = {ok, Pid},
     {reply, Reply, State}.
-
 
 %%--------------------------------------------------------------------
 %% @private
@@ -165,64 +156,11 @@ code_change(_OldVsn, State, _Extra) ->
 %%% Internal functions
 %%%===================================================================
 
-create_grid(Rows, Columns) ->
-    [create_grid_cell(Row, Column) || Row    <- lists:seq(0, Rows - 1),
-				      Column <- lists:seq(0, Columns - 1)].
-
-configure_cell(Cells, Cell) ->
-    %%io:format("*** Configure Cell ~p~n", [Cell]),
-    
-    {ok, Row, Column} = maze_cell:position(Cell),
-    
-    %%io:format("*** Configure Cell at ~p/~p~n", [Row, Column]),
-    
-    North = [P || {R, C, P} <- Cells, R =:= Row - 1, C =:= Column],
-    South = [P || {R, C, P} <- Cells, R =:= Row + 1, C =:= Column],
-    
-    West = [P || {R, C, P} <- Cells, R =:= Row, C =:= Column - 1],
-    East = [P || {R, C, P} <- Cells, R =:= Row, C =:= Column + 1],
-    
-    %%io:format("*** N/S/W/E: ~p/~p/~p/~p~n", [North, South, West, East]),
-    
-    set_cell_dir(Cell, north, North),
-    set_cell_dir(Cell, south, South),
-    set_cell_dir(Cell, west,  West),
-    set_cell_dir(Cell, east,  East),
-    
-    ok.
-
-set_cell_dir(Cell, Dir, []) ->
-    ok;
-set_cell_dir(Cell, Dir, [Pid]) ->
-    apply(maze_cell, Dir, [Cell, Pid]).
-
+%%%-------------------------------------------------------------------
+%%%-------------------------------------------------------------------
 create_grid_cell(Row, Column) ->
-    {ok, Cell} = maze_cell:new(self(), Row, Column),
-    {Row, Column, Cell}.
-
-%% lines = ""
-%% for row = 0 to rows - 1
-%%   for lin = 0 to 4
-%%     for col = 0 to columns - 1
-%%       lines += cell(row, col, lin)
-%%     lines += newline
-%%   lines += newline
-%% lines
- 
-format_cells(Cells, Rows, Columns) ->
-    format_row_col_line(Cells, 0, Rows, 0, Columns, 0, 5, "").
-
-format_row_col_line(_Cells, Rows, Rows, _Col, _Columns, _Line, _Lines, Text) ->
-    Text;
-format_row_col_line(Cells, Row, Rows, _Col, Columns, Lines, Lines, Text) ->
-    format_row_col_line(Cells, Row + 1, Rows, 0, Columns, 0, Lines, Text);
-format_row_col_line(Cells, Row, Rows, Columns, Columns, Line, Lines, Text) ->
-    format_row_col_line(Cells, Row, Rows, 0, Columns, Line + 1, Lines, Text ++ "\n");
-format_row_col_line(Cells, Row, Rows, Col, Columns, Line, Lines, Text) ->
-    [Cell] = [X || {R, C, X} <- Cells, R == Row, C == Col],
-    {ok, CLines} = Cell,
-    [String] = [T || {L, T} <- CLines, L == Line],
-    format_row_col_line(Cells, Row, Rows, Col + 1, Columns, Line, Lines, Text ++ String).
+    {ok, Pid} = maze_cell:new(self(), Row, Column),
+    Pid.
 
 %%%-------------------------------------------------------------------
 %%% End Of File

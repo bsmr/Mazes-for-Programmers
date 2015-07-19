@@ -14,11 +14,11 @@
 	 south/1, south/2,
 	 east/1, east/2,
 	 west/1, west/2,
+	 links/1,
 	 link/2, link/3,
 	 unlink/2, unlink/3,
 	 is_linked/2,
-	 neighbours/1,
-	 to_string/1]).
+	 neighbours/1]).
 
 new(Grid, Row, Column) ->
     maze_cell_sup:start_child(Grid, Row, Column).
@@ -50,6 +50,9 @@ west(Cell) ->
 west(Cell, West) ->
     maze_cell_srv:west(Cell, West).
 
+links(Cell) ->
+    maze_cell_srv:links(Cell).
+
 link(Cell, To) ->
     link(Cell, To, true).
 link(Cell, To, Bidi) ->
@@ -65,9 +68,6 @@ is_linked(Cell, To) ->
 
 neighbours(Cell) ->
     maze_cell_src:neighbours(Cell).
-
-to_string(Cell) ->
-    maze_cell_srv:to_string(Cell).
 
 %%%-------------------------------------------------------------------
 %%% End Of File

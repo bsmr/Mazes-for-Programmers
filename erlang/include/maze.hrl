@@ -10,7 +10,7 @@
 
 -record(maze, {grids}).
 
--record(grid, {maze, mode, rows, columns, cells}).
+-record(grid, {maze, rows, columns, cells}).
 
 -record(cell, {grid, row, column, links, north, south, east, west}).
 

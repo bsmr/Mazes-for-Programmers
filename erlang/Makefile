@@ -10,34 +10,38 @@ ebin/%.beam: src/%.erl
 
 all: compile
 
-compile:	ebin/maze.app 		\
-		ebin/maze_example.beam	\
-		ebin/maze.beam		\
-		ebin/maze_app.beam	\
-		ebin/maze_sup.beam	\
-		ebin/maze_srv.beam	\
-		ebin/maze_grid.beam	\
-		ebin/maze_grid_sup.beam	\
-		ebin/maze_grid_srv.beam	\
-		ebin/maze_cell.beam	\
-		ebin/maze_cell_sup.beam	\
+compile:	ebin/maze.app 			\
+		ebin/maze_example.beam		\
+		ebin/maze_util.beam		\
+		ebin/maze_binary_tree.beam	\
+		ebin/maze.beam			\
+		ebin/maze_app.beam		\
+		ebin/maze_sup.beam		\
+		ebin/maze_srv.beam		\
+		ebin/maze_grid.beam		\
+		ebin/maze_grid_sup.beam		\
+		ebin/maze_grid_srv.beam		\
+		ebin/maze_cell.beam		\
+		ebin/maze_cell_sup.beam		\
 		ebin/maze_cell_srv.beam
 
 # temporary hack, need better solution
 ebin/maze.app: src/maze.app.in
 	sed -e 's/%%VSN%%/0.0.1/g' <$< >$@
 
-ebin/maze_example.beam:		src/maze_example.erl	#include/maze.hrl
-ebin/maze.beam:			src/maze.erl		#include/maze.hrl
-ebin/maze_app.beam:		src/maze_app.erl	#include/maze.hrl
-ebin/maze_sup.beam:		src/maze_sup.erl	#include/maze.hrl
-ebin/maze_srv.beam:		src/maze_srv.erl	include/maze.hrl
-ebin/maze_grid.beam:		src/maze_grid.erl	#include/maze.hrl
-ebin/maze_grid_sup.beam:	src/maze_grid_sup.erl	#include/maze.hrl
-ebin/maze_grid_srv.beam:	src/maze_grid_srv.erl	include/maze.hrl
-ebin/maze_cell.beam:		src/maze_cell.erl	#include/maze.hrl
-ebin/maze_cell_sup.beam:	src/maze_cell_sup.erl	#include/maze.hrl
-ebin/maze_cell_srv.beam:	src/maze_cell_srv.erl	include/maze.hrl
+ebin/maze_example.beam:			src/maze_example.erl		#include/maze.hrl
+ebin/maze.beam:				src/maze.erl			#include/maze.hrl
+ebin/maze_app.beam:			src/maze_app.erl		#include/maze.hrl
+ebin/maze_sup.beam:			src/maze_sup.erl		#include/maze.hrl
+ebin/maze_srv.beam:			src/maze_srv.erl		include/maze.hrl
+ebin/maze_grid.beam:			src/maze_grid.erl		#include/maze.hrl
+ebin/maze_grid_sup.beam:		src/maze_grid_sup.erl		#include/maze.hrl
+ebin/maze_grid_srv.beam:		src/maze_grid_srv.erl		include/maze.hrl
+ebin/maze_cell.beam:			src/maze_cell.erl		#include/maze.hrl
+ebin/maze_cell_sup.beam:		src/maze_cell_sup.erl		#include/maze.hrl
+ebin/maze_cell_srv.beam:		src/maze_cell_srv.erl		include/maze.hrl
+ebin/maze_util.beam:			src/maze_util.erl		#include/maze.hrl
+ebin/maze_binary_tree.beam:		src/maze_binary_tree.erl	#include/maze.hrl
 
 run: compile
 	$(ERL) -pa ebin -s maze_example start

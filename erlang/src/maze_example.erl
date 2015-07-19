@@ -10,69 +10,27 @@
 
 -export([start/0]).
 
+-define(GRID_ROWS, 4).
+-define(GRID_COLUMNS, 4).
+
 start() ->
-    ok = application:start('sasl'),
+    %%ok = application:start('sasl'),
     ok = application:start('maze'),
     %%ok = observer:start(),
     example(),
-    init:stop().
-    %%ok.
+    init:stop(),
+    ok.
 
 example() ->
-    {ok, Grid1} = maze:create(sidewinder, 4, 4),
-    %%{ok, Grid1} = maze:create(sidewinder, 15, 50),
-    ok = maze_grid:configure(Grid1),
-    {ok, Cells1} = maze_grid:cells(Grid1),
-
-    binary_tree(Cells1),
-    
-    %%{error, out_of_bounds} = maze_grid:at(Grid1, -1, -1),
-    %%{error, out_of_bounds} = maze_grid:at(Grid1,  2,  4),
-    %%{error, out_of_bounds} = maze_grid:at(Grid1,  4,  2),
-    %%{error, out_of_bounds} = maze_grid:at(Grid1,  4,  4),
-    %%{ok, Cell1} = maze_grid:at(Grid1, 2, 3),
-    %%{ok, Text1} = maze_cell:to_string(Cell1),
-    %%io:format("~s~n", [Text1]),
-    {ok, Data1} = maze_grid:to_string(Grid1),
-    io:format("~s", [Data1]),
-    %%{ok, Grid2} = maze:create(foobar, 10, 10),
-    %%{ok, Data2} = maze_grid:to_string(Grid2),
-    %%io:format("~s~n", [Data2]),
+    %% grid dimensions:       HEIGHT   x  WIDTH
+    {ok, Grid} = maze:create(?GRID_ROWS, ?GRID_COLUMNS),
+    %% prepare cells for maze algorithm
+    ok = maze_util:grid_configure(Grid),
+    %% execute maze algorithm
+    ok = maze_binary_tree:prepare(Grid),
+    %% show maze
+    ok = maze_util:grid_format(Grid),
     ok.
-
-binary_tree(Cells) ->
-    %%io:format("*** Cells: ~p~n", [Cells]),
-    [binary_tree_cell(Cell) || {_, _, Cell} <- Cells],
-    ok.
-binary_tree_cell(Cell) ->
-    %%io:format("*** C:~p~n", [Cell]),
-    {ok, North} = maze_cell:north(Cell),
-    {ok, East}  = maze_cell:east(Cell),
-    %%io:format("*** N:~p - E:~p~n", [North, East]),
-    Neighbours = [N || N <- [North, East], N =/= undefined],
-    %%Index = rand:uniform(length(Neighbours)),
-    %%Neighbour = lists:nth(Index, Neighbours),
-    Neighbour = select_neighbours(Neighbours),
-    %%io:format("*** Ns:~p - N:~p - I:~p~n", [Neighbours, Neighbour, Index]),
-    %%maze_cell:link(Cell, Neighbour).
-    binary_tree_cell_link(Cell, Neighbour).
-
-select_neighbours([]) ->
-    undefined;
-select_neighbours([Neighbour]) ->
-    Neighbour;
-select_neighbours(Neighbours) ->
-    Index = rand:uniform(length(Neighbours)),
-    lists:nth(Index, Neighbours).
-
-
-binary_tree_cell_link(_Cell, undefined) ->
-    ok;
-binary_tree_cell_link(Cell, Neighbour) ->
-    maze_cell:link(Cell, Neighbour).
-
-    
-    
 
 %%%-------------------------------------------------------------------
 %%% End Of File

@@ -9,13 +9,13 @@
 -module(maze).
 %%-include("maze.hrl").
 
--export([create/3, format/2]).
+-export([create/2, format/2]).
 
 format(Format, Args) ->
     lists:flatten(io_lib:format(Format, Args)).
 
-create(Mode, Rows, Columns) ->
-    maze_srv:create(Mode, Rows, Columns).
+create(Rows, Columns) ->
+    maze_srv:create(Rows, Columns).
 
 %%%===================================================================
 %%% End Of File
