@@ -165,21 +165,17 @@ handle_call({set_west, NewCell}, _From, #cell{west = OldCell} = State) ->
     {reply, Reply, State#cell{west = NewCell}};
 
 handle_call(links, _From, #cell{links = Links} = State) ->
-    %%Pids = [P || P <- Links],
-    %%io:format("*** ~p:handle_call(links,...,Links:~p) => Cells:~p~n", [?MODULE, Links, Pids]),
     Reply = {ok, Links},
     {reply, Reply, State};
     
 handle_call({link, To, true}, _From, #cell{links = OldLinks} = State) ->
     NewLinks = [To | OldLinks],
-    %%io:format("*** [~p] ~p:handle_call({link, To:~p, true}):~n    old:~p => new:~p~n", [self(), ?MODULE, To, OldLinks, NewLinks]),
     maze_cell:link(To, self(), false),
     Reply = ok,
     {reply, Reply, State#cell{links = NewLinks}};
     
 handle_call({link, To, false}, _From, #cell{links = OldLinks} = State) ->
     NewLinks = [To | OldLinks],
-    %%io:format("*** [~p] ~p:handle_call({link, To:~p, false}):~n    old:~p => new:~p~n", [self(), ?MODULE, To, OldLinks, NewLinks]),
     Reply = ok,
     {reply, Reply, State#cell{links = NewLinks}};
     

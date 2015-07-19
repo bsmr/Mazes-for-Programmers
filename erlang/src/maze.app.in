@@ -1,20 +1,21 @@
+%%% -*- mode: Erlang; -*-
 %%%-------------------------------------------------------------------
-%%% -*- mode: Erlang -*-
+%%% maze application configuration
 %%%-------------------------------------------------------------------
 
 {application, maze,
  [{description, "the maze application"},
   {vsn, "%%VSN%%"},
-  {modules, [maze,
-	     maze_app,
-	     maze_sup,
-	     maze_srv,
-	     maze_grid,
-	     maze_grid_sup,
-	     maze_grid_srv,
-	     maze_cell,
-	     maze_cell_sup,
-	     maze_cell_srv]},
+  {modules, [maze,			%% main API
+	     maze_app,			%% main application behaviour
+	     maze_sup,			%% main supervisor behaviour
+	     maze_srv,			%% main gen_server behaviour
+	     maze_grid,			%% grid API
+	     maze_grid_sup,		%% grid supervisor behaviour
+	     maze_grid_srv,		%% grid gen_server behaviour
+	     maze_cell,			%% cell API
+	     maze_cell_sup,		%% cell supervisor behaviour
+	     maze_cell_srv]},		%% cell gen_server behaviour
   {registered, [maze_sup,
 		maze_srv,
 		maze_grid_sup,

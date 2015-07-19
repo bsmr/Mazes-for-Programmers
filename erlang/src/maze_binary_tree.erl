@@ -30,11 +30,9 @@ select_neighbours(Neighbours) ->
     Index = rand:uniform(length(Neighbours)),
     lists:nth(Index, Neighbours).
 
-binary_tree_cell_link(Cell, undefined) ->
-    %%io:format("*** link from ~p is not set~n", [Cell]),
+binary_tree_cell_link(_Cell, undefined) ->
     ok;
 binary_tree_cell_link(Cell, Neighbour) ->
-    %%io:format("*** link from ~p to ~p~n", [Cell, Neighbour]),
     ok = maze_cell:link(Cell, Neighbour).
 
     

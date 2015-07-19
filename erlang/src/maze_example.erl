@@ -13,6 +13,9 @@
 -define(GRID_ROWS, 4).
 -define(GRID_COLUMNS, 4).
 
+%%%-------------------------------------------------------------------
+%%% prepare the erlang environment
+%%%-------------------------------------------------------------------
 start() ->
     %%ok = application:start('sasl'),
     ok = application:start('maze'),
@@ -21,6 +24,9 @@ start() ->
     init:stop(),
     ok.
 
+%%%-------------------------------------------------------------------
+%%% do something
+%%%-------------------------------------------------------------------
 example() ->
     {ok, Rows, Columns} = grid_ranks(),
     %% grid dimensions:    HEIGHT x WIDTH
@@ -33,6 +39,10 @@ example() ->
     ok = maze_util:grid_format(Grid),
     ok.
 
+%%%-------------------------------------------------------------------
+%%% check for the command line argument "-gridranks" and try to use
+%%% specified values
+%%%-------------------------------------------------------------------
 grid_ranks() ->
     case init:get_argument(gridranks) of
 	{ok, Result} ->

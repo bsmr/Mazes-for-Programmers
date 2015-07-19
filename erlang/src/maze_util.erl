@@ -60,9 +60,6 @@ set_cell_dir(Cell, Dir, To) ->
 cell_to_string(Cell, Line) ->
     {ok, Links} = maze_cell:links(Cell),
     
-    %% io:format("*** ~p:cell_to_string(Cell:~p, Line:~p): Links:~p~n",
-    %% 	      [?MODULE, Cell, Line, Links]),
-    
     String = if
 		 Line == 0 ->
 		     {ok, North} = maze_cell:north(Cell),
@@ -70,6 +67,7 @@ cell_to_string(Cell, Line) ->
 			 false -> "+---+";
 			 true  -> "+   +"
 		     end;
+
 		 (0 < Line) and (Line < 4) ->
 		     {ok, East} = maze_cell:east(Cell),
 		     {ok, West} = maze_cell:west(Cell),
@@ -79,19 +77,25 @@ cell_to_string(Cell, Line) ->
 			 {true,  false} -> "    |";
 			 {true,  true } -> "     "
 		     end;
+
 		 Line == 4 ->
 		     {ok, South} = maze_cell:south(Cell),
 		     case lists:member(South, Links) of
 			 false -> "+---+";
 			 true  -> "+   +"
 		     end;
+
+		 %% this should not happen, but we are a good erlang
+		 %% "if citizen"
 		 true ->
 		     "#####"
+
 	     end,
     
     {ok, String}.
 
 %%%-------------------------------------------------------------------
+%%% convert a grid to ASCII art
 %%%-------------------------------------------------------------------
 
 %% lines = ""
